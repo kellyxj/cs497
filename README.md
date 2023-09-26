@@ -48,9 +48,9 @@ deliverables include:
 * Programming component (code, benchmarks, demo, etc.) - 25%
 
 ### Schedule
-| Date  | Topic                              | Slides                             |
-| ----- | ---------------------------------- | :--------------------------------: |
-| 09/20 | Course Introduction                | - |
+| Date  | Topic                              | Slides                            |
+| ----- | ---------------------------------- | :-------------------------------: |
+| 09/20 | Course Introduction                | [01.pdf](slides/cs497-f23_01.pdf) |
 | 09/25 | Data Storage                       | - |
 | 09/27 | Compression                        | - |
 | 10/02 | Data Skipping                      | - |
