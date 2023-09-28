@@ -1,0 +1,12 @@
+amazon.ion
+cbor2
+lz4
+msgpack
+orjson
+pandas
+pyarrow
+pymongo
+python-rapidjson
+simplejson
+ujson
+zstandard
