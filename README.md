@@ -51,8 +51,8 @@ deliverables include:
 | Date  | Topic                              | Slides                            |
 | ----- | ---------------------------------- | :-------------------------------: |
 | 09/20 | Course Introduction                | [01.pdf](slides/cs497-f23_01.pdf) |
-| 09/25 | Data Storage                       | - |
-| 09/27 | Compression                        | - |
+| 09/25 | Data Storage                       | [02.pdf](slides/cs497-f23_02.pdf) |
+| 09/27 | Compression                        | [03.pdf](slides/cs497-f23_03.pdf) |
 | 10/02 | Data Skipping                      | - |
 | 10/04 | Query Execution                    | - |
 | 10/09 | Indigenous Peoples' Day (no class) | - |
