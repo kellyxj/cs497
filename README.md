@@ -30,12 +30,24 @@ project. The project deliverables include:
 * Written report (at least 4 pages excluding references, modeled after a workshop paper) - 10%
 * Programming component (code, benchmarks, demo, etc.) - 25%
 
+**\*All materials due by: Wednesday, 10/25 @ 11:59pm CT**
+
+| Group | Compressed Size (bytes) |
+| ----- | ----------------------: |
+| -     | -                       |
+
 ##### Encyclopedia Article – 10%
 The [Database of Databases](https://dbdb.io/) is an online encyclopedia of DBMSs
 maintained by the [CMU Database Group](https://db.cs.cmu.edu/). Students may
 work individually or in pairs to write an article of their choice on an approved
 DBMS. Additional information is available here:
 https://15721.courses.cs.cmu.edu/spring2023/project2.html
+
+**\*All materials due by: Friday, 12/08 @ 11:59pm CT**
+
+| Group | Article Topic |
+| ----- | ------------- |
+| -     | -             |
 
 ##### Final Project – 50%
 Students may work individually or in pairs to complete a final project of their
@@ -46,6 +58,12 @@ deliverables include:
 * Project presentation (20-30 minutes, modeled after a full conference talk) - 10%
 * Written report (at least 6 pages excluding references, modeled after a conference paper) - 10%
 * Programming component (code, benchmarks, demo, etc.) - 25%
+
+**\*All materials due by: Friday, 12/08 @ 11:59pm CT**
+
+| Group | Project Title | Presentation Day |
+| ----- | ------------- | ---------------- |
+| -     | -             | -                |
 
 ### Schedule
 | Date  | Topic                              | Slides                            |
