@@ -72,7 +72,7 @@ deliverables include:
 | 09/25 | Data Storage                       | [02.pdf](slides/cs497-f23_02.pdf) |
 | 09/27 | Compression                        | [03.pdf](slides/cs497-f23_03.pdf) |
 | 10/02 | Data Skipping                      | [04.pdf](slides/cs497-f23_04.pdf) |
-| 10/04 | Query Execution                    | - |
+| 10/04 | Query Execution                    | [05.pdf](slides/cs497-f23_05.pdf) |
 | 10/09 | Indigenous Peoples' Day (no class) | - |
 | 10/11 | Vectorization                      | - |
 | 10/16 | Query Compilation (Part 1)         | - |
