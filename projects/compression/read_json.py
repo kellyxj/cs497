@@ -13,5 +13,5 @@ df = spark.read.json(json_path)
 print(df.printSchema())
 df_pd = df.toPandas()
 
-conn = sqlite3.connect(os.path.join(os.getcwd(), "data", filename + ".db"))
-df_pd.to_sql(filename, conn, index=True, if_exists="replace")
+con = sqlite3.connect(os.path.join(os.getcwd(), "data", filename + ".db"))
+df_pd.to_sql(filename, con, index=True, if_exists="replace")
