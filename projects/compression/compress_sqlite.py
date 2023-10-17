@@ -1,3 +1,6 @@
+from dictionary_encode import DictionaryEncode
+from bitpack import Bitpack
+
 import os
 import sqlite3
 
@@ -10,8 +13,9 @@ res = cur.execute(column_name_query)
 
 column_names = res.fetchall()
 for column_name in column_names:
-    query = "SELECT COUNT(DISTINCT \"" + column_name[0] + "\") FROM " + filename + ";"
+    query = "SELECT \"" + column_name[0] + "\" FROM " + filename + ";"
     print(query)
     if column_name[0] != "index":
         res = cur.execute(query)
-        print("Distinct cardinality of " + column_name[0] + ": " + str(res.fetchone()))
+        column = res.fetchall()
+print("done")
