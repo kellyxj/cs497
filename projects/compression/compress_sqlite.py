@@ -1,10 +1,12 @@
-from dictionary_encode import DictionaryEncode
-from bitpack import Bitpack
+from compression_schemes.dictionary_encode import DictionaryEncode
+from compression_schemes.bitpack import Bitpack
 
 import os
 import gc
 import sys
+
 import sqlite3
+from decimal import *
 
 #from https://stackoverflow.com/questions/13530762/how-to-know-bytes-size-of-python-object-like-arrays-and-dictionaries-the-simp
 def get_obj_size(obj):
@@ -23,6 +25,12 @@ def get_obj_size(obj):
         marked.update(new_refr.keys())
 
     return sz
+
+def try_cast_to_int(column):
+    pass
+
+def try_cast_to_decimal(column):
+    pass
 
 def try_dictionary_encode(column):
     dictionary = {}
