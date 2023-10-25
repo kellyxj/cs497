@@ -76,6 +76,9 @@ class Runner():
         original_size = get_obj_size(column)
         new_column_size = get_obj_size(new_column)
 
+        print("Original size: " + str(original_size))
+        print("Zipped size: " + str(new_column_size))
+
         if new_column_size < original_size:
             self.zipped = True
             return new_column
@@ -84,6 +87,10 @@ class Runner():
             return column
 
     def compress(self):
+        self.vertical_partition_and_dictionary_encode()
+        self.compress_partitioned_table()
+
+    def vertical_partition_and_dictionary_encode(self):
  
         column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
         res = self.read_cursor.execute(column_name_query)
@@ -148,7 +155,13 @@ class Runner():
                         self.write_con.commit()
 
                 self.dictionary_encode.dictionary = {}
+
+                if column_type == "TEXT":
+                    column = self.try_zopfli(column)
         print("done")
+
+    def compress_partitioned_table(self):
+        pass
 
     def decompress(self):
         #for each column, check the bit in the metadata table to see if compression scheme was applied
@@ -162,8 +175,8 @@ class Runner():
 runner = Runner("clothes")
 runner.compress()
 
-runner = Runner("news")
-runner.compress()
+#runner = Runner("news")
+#runner.compress()
 
-runner = Runner("questions")
-runner.compress()
+#runner = Runner("questions")
+#runner.compress()
