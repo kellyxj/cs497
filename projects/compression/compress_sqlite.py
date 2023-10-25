@@ -1,8 +1,9 @@
 from compression_schemes.dictionary_encode import DictionaryEncode
-from compression_schemes.bitpack import Bitpack
+from compression_schemes.bitpack import Bitpacker
 from compression_schemes.zopfli import Zopfli
-
+#from compression_schemes.bitpack import Bitpack
 from util.get_size import get_obj_size 
+
 
 import os
 import sys
@@ -19,7 +20,7 @@ class Runner():
         self.write_cursor = self.write_con.cursor()
 
         self.dictionary_encode = DictionaryEncode()
-        self.bitpack = Bitpack()
+        # self.bitpack = Bitpacker()
         self.zopfli = Zopfli()
 
         self.cast_succeeded = False
@@ -156,23 +157,20 @@ class Runner():
 
                 self.dictionary_encode.dictionary = {}
 
-    def compress_partitioned_table(self):
-        column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
-        res = self.read_cursor.execute(column_name_query)
+                if column_type == "TEXT":
+                    column = self.try_zopfli(column)
+        print("done")
 
-        column_names = res.fetchall()
-        for column_name in column_names:
-            table_name = column_name[0].replace(" ", "_")
-            
-            #check metadata table to see if the column was dictionary encoded
+    def compress_partitioned_table(input_filename, table_name):
+        
 
-            if self.dictionary_encoded:
-                table_name += table_name + "_dictionary_encoded"
+        # Create a Bitpacker object and compress the data in the input file
+        bitpacker = Bitpacker()
+        bitpacker.compress_partitioned_table(input_filename, table_name)
 
-            query = "SELECT " + column_name[0] + " FROM " + table_name + ";"
-
-            res = self.write_cursor.execute(query)
-            column = res.fetchall()
+        # Rename the compressed database file to have a .db extension
+        output_filename = input_filename.split(".")[0] + "_compressed.db"
+        os.rename(output_filename, output_filename + ".db")
 
     def decompress(self):
         #for each column, check the bit in the metadata table to see if compression scheme was applied
