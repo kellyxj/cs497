@@ -15,17 +15,18 @@ class Runner():
         self.read_cursor = self.read_con.cursor()
         self.write_con = sqlite3.connect(os.path.join(os.getcwd(), "data", filename + "_compressed.db"))
         self.write_cursor = self.write_con.cursor()
+        self.cast_succeeded = False
 
     def try_cast_to_int(self, column):
         new_column = []
         try:
             for row in column:
-                new_row = (int(row[0]))
+                new_row = (int(row[0]),)
                 new_column.append(new_row)
-            print("cast succeeded")
+            self.cast_succeeded = True
             return new_column
         except(TypeError, ValueError):
-            print("cast failed")
+            self.cast_succeeded = False
             return column
 
     def try_cast_to_decimal(self, column):
@@ -55,13 +56,12 @@ class Runner():
 
         column_names = res.fetchall()
         for column_name in column_names:
-            #start by creating a metadata table
+            #TODO: start by creating a metadata table
             #for each column in the original table, store a bit vector
             #set the bit to 1 if compression scheme is applied
 
-
             #for each column, try casting to int
-            #if that fails, try casting to float
+            #TODO: if that fails, try casting to float
 
             #for each column, try each compression scheme and see if the result is smaller
 
@@ -77,7 +77,18 @@ class Runner():
                 column = res.fetchall()
 
                 if column_type == "TEXT":
-                   self.try_cast_to_int(column)
+                   column = self.try_cast_to_int(column)
+
+                column_type = "INTEGER" if self.cast_succeeded  else column_type
+                create_table_statement = "CREATE TABLE IF NOT EXISTS " + column_name[0].replace(" ", "_") + "(\"" + column_name[0] + "\" " + column_type + ");"
+                self.write_cursor.execute(create_table_statement)
+                self.write_con.commit()
+                #print(create_table_statement)
+                insert_statement = "INSERT INTO " + column_name[0].replace(" ", "_") + "(\"" + column_name[0] + "\")" + " VALUES (?);"
+                #print(insert_statement)
+
+                self.write_cursor.executemany(insert_statement, column)
+            self.write_con.commit()
         print("done")
 
     def decompress(self):
