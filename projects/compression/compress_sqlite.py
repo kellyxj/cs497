@@ -88,8 +88,9 @@ class Runner():
             return column
 
     def compress(self):
+        self.create_metadata()
         self.vertical_partition_and_dictionary_encode()
-        self.compress_partitioned_table()
+        #self.compress_partitioned_table()
 
     def vertical_partition_and_dictionary_encode(self):
  
@@ -109,7 +110,7 @@ class Runner():
             #for each column, try each compression scheme and see if the result is smaller
 
             query = "SELECT \"" + column_name[0] + "\" FROM " + self.filename + ";"
-            print(query) 
+            print(query)
 
             if column_name[0] != "index" and column_name[0] != "_corrupt_record":
                 type_query = "SELECT type FROM PRAGMA_TABLE_INFO('" + self.filename + "') WHERE name = \"" + column_name[0] + "\";"
@@ -162,15 +163,15 @@ class Runner():
         print("done")
 
     def compress_partitioned_table(input_filename, table_name):
-        
+        pass
 
         # Create a Bitpacker object and compress the data in the input file
-        bitpacker = Bitpacker()
-        bitpacker.compress_partitioned_table(input_filename, table_name)
+        #bitpacker = Bitpacker()
+        #bitpacker.compress_partitioned_table(input_filename, table_name)
 
         # Rename the compressed database file to have a .db extension
-        output_filename = input_filename.split(".")[0] + "_compressed.db"
-        os.rename(output_filename, output_filename + ".db")
+        #output_filename = input_filename.split(".")[0] + "_compressed.db"
+        #os.rename(output_filename, output_filename + ".db")
 
     def decompress(self):
         #for each column, check the bit in the metadata table to see if compression scheme was applied
@@ -193,8 +194,17 @@ class Runner():
             column = res.fetchall()
 
     def create_metadata(self):
+        column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
+        res = self.read_cursor.execute(column_name_query)
 
-        pass
+        column_names = res.fetchall()
+
+        create_metadata_query = "CREATE TABLE IF NOT EXISTS metadata(column_name TEXT, dictionary_encoded INTEGER, bitpacked INTEGER, zipped INTEGER);"
+        self.write_cursor.execute(create_metadata_query)
+
+        for column_name in column_names:
+            insert_query = "INSERT INTO metadata(column_name, dictionary_encoded, bitpacked, zipped) VALUES (\"" + column_name[0] + "\",0,0,0);"
+            self.write_cursor.execute(insert_query)
 
 runner = Runner("clothes")
 runner.compress()
