@@ -154,6 +154,9 @@ class Runner():
                             self.write_cursor.execute(insert_statement)
 
                         self.write_cursor.execute(drop_table_statement)
+
+                        update_metadata_statement = "UPDATE metadata SET dictionary_encoded = 1 WHERE column_name = \"" + column_name[0] + "\";"
+                        self.write_cursor.execute(update_metadata_statement)
                         self.write_con.commit()
 
                 self.dictionary_encode.dictionary = {}
