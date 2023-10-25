@@ -21,7 +21,7 @@ class Runner():
         new_column = []
         try:
             for row in column:
-                new_row = (int(row[0]),)
+                new_row = row if row[0] == None else (int(row[0]),)
                 new_column.append(new_row)
             self.cast_succeeded = True
             return new_column
@@ -82,7 +82,7 @@ class Runner():
                 column_type = "INTEGER" if self.cast_succeeded  else column_type
                 create_table_statement = "CREATE TABLE IF NOT EXISTS " + column_name[0].replace(" ", "_") + "(\"" + column_name[0] + "\" " + column_type + ");"
                 self.write_cursor.execute(create_table_statement)
-                self.write_con.commit()
+                #self.write_con.commit()
                 #print(create_table_statement)
                 insert_statement = "INSERT INTO " + column_name[0].replace(" ", "_") + "(\"" + column_name[0] + "\")" + " VALUES (?);"
                 #print(insert_statement)
