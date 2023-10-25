@@ -62,14 +62,15 @@ class Runner():
             return column
 
     def try_bitpack(self, column):
-        new_column = self.bitpack.compress(column)
+        pass
+        #new_column = self.bitpack.compress(column)
 
-        original_size = get_obj_size(column)
-        new_column_size = get_obj_size(new_column)
+        #original_size = get_obj_size(column)
+        #new_column_size = get_obj_size(new_column)
 
-        print("Original size: " + str(get_obj_size(column)))
-        print("Bitpacking metadata size: ")
-        print("New column size: " + str(get_obj_size(new_column)))
+        #print("Original size: " + str(get_obj_size(column)))
+        #print("Bitpacking metadata size: ")
+        #print("New column size: " + str(get_obj_size(new_column)))
 
     def try_zopfli(self, column):
         new_column = self.zopfli.compress(column)
@@ -161,8 +162,8 @@ class Runner():
 
                 self.dictionary_encode.dictionary = {}
 
-                if column_type == "TEXT":
-                    column = self.try_zopfli(column)
+                #if column_type == "TEXT":
+                    #column = self.try_zopfli(column)
         print("done")
 
     def compress_partitioned_table(input_filename, table_name):
@@ -184,17 +185,18 @@ class Runner():
 
         column_names = res.fetchall()
         for column_name in column_names:
-            table_name = column_name[0].replace(" ", "_")
-            
-            #check metadata table to see if the column was dictionary encoded
+            if column_name[0] != "index":
+                table_name = column_name[0].replace(" ", "_")
+                
+                #check metadata table to see if the column was dictionary encoded
 
-            if self.dictionary_encoded:
-                table_name += table_name + "_dictionary_encoded"
+                if self.dictionary_encoded:
+                    table_name += table_name + "_dictionary_encoded"
 
-            query = "SELECT " + column_name[0] + " FROM " + table_name + ";"
+                query = "SELECT " + column_name[0] + " FROM " + table_name + ";"
 
-            res = self.write_cursor.execute(query)
-            column = res.fetchall()
+                res = self.write_cursor.execute(query)
+                column = res.fetchall()
 
     def create_metadata(self):
         column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
@@ -202,11 +204,11 @@ class Runner():
 
         column_names = res.fetchall()
 
-        create_metadata_query = "CREATE TABLE IF NOT EXISTS metadata(column_name TEXT, dictionary_encoded INTEGER, bitpacked INTEGER, zipped INTEGER);"
+        create_metadata_query = "CREATE TABLE IF NOT EXISTS metadata(column_name TEXT, dictionary_encoded INTEGER, bitpacked INTEGER, zipped INTEGER, min INTEGER, max INTEGER);"
         self.write_cursor.execute(create_metadata_query)
 
         for column_name in column_names:
-            insert_query = "INSERT INTO metadata(column_name, dictionary_encoded, bitpacked, zipped) VALUES (\"" + column_name[0] + "\",0,0,0);"
+            insert_query = "INSERT INTO metadata(column_name, dictionary_encoded, bitpacked, zipped, min, max) VALUES (\"" + column_name[0] + "\",0,0,0, NULL, NULL);"
             self.write_cursor.execute(insert_query)
 
 runner = Runner("clothes")
