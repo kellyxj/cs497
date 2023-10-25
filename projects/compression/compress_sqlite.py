@@ -156,12 +156,18 @@ class Runner():
 
                 self.dictionary_encode.dictionary = {}
 
-                if column_type == "TEXT":
-                    column = self.try_zopfli(column)
-        print("done")
-
     def compress_partitioned_table(self):
-        pass
+        column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
+        res = self.read_cursor.execute(column_name_query)
+
+        column_names = res.fetchall()
+        for column_name in column_names:
+            table_name = column_name[0].replace(" ", "_")
+            
+            #check metadata table to see if the column was dictionary encoded
+
+            if self.dictionary_encoded:
+                table_name += table_name + "_dictionary_encoded"
 
     def decompress(self):
         #for each column, check the bit in the metadata table to see if compression scheme was applied
