@@ -9,7 +9,7 @@ class DictionaryEncode():
             if not row[0] in self.dictionary:
                 self.dictionary[row[0]] = count
                 count += 1
-            new_column.append(self.dictionary[row[0]])
+            new_column.append((self.dictionary[row[0]],))
         
         return new_column
 

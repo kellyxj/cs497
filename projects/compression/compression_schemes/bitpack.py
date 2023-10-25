@@ -2,8 +2,8 @@ class Bitpack():
     def __init__(self):
         pass
 
-    def compress(self, tuples):
+    def compress(self, column):
         pass
 
-    def decompress(self, tuples):
+    def decompress(self, column):
         pass

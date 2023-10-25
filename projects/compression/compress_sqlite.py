@@ -1,5 +1,7 @@
 from compression_schemes.dictionary_encode import DictionaryEncode
 from compression_schemes.bitpack import Bitpack
+from compression_schemes.zopfli import Zopfli
+
 from util.get_size import get_obj_size 
 
 import os
@@ -18,9 +20,12 @@ class Runner():
 
         self.dictionary_encode = DictionaryEncode()
         self.bitpack = Bitpack()
+        self.zopfli = Zopfli()
 
         self.cast_succeeded = False
         self.dictionary_encoded = False
+        self.bitpacked = False
+        self.zipped = False
 
     def try_cast_to_int(self, column):
         new_column = []
@@ -58,9 +63,25 @@ class Runner():
     def try_bitpack(self, column):
         new_column = self.bitpack.compress(column)
 
+        original_size = get_obj_size(column)
+        new_column_size = get_obj_size(new_column)
+
         print("Original size: " + str(get_obj_size(column)))
         print("Bitpacking metadata size: ")
         print("New column size: " + str(get_obj_size(new_column)))
+
+    def try_zopfli(self, column):
+        new_column = self.zopfli.compress(column)
+
+        original_size = get_obj_size(column)
+        new_column_size = get_obj_size(new_column)
+
+        if new_column_size < original_size:
+            self.zipped = True
+            return new_column
+        else:
+            self.zipped = False
+            return column
 
     def compress(self):
  
