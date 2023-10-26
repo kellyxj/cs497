@@ -54,7 +54,7 @@ class Runner():
         print("Dictionary size: " + str(dictionary_size))
         print("New column size: " + str(new_column_size))
 
-        if new_column_size + dictionary_size < original_size:
+        if len(self.dictionary_encode.dictionary.keys()) < .5 * len(list(filter(lambda x : x != None, column))):
             self.dictionary_encoded = True
             return new_column
         else:
@@ -91,7 +91,8 @@ class Runner():
     def compress(self):
         self.create_metadata()
         self.vertical_partition_and_dictionary_encode()
-        #self.compress_partitioned_table()
+        self.compress_partitioned_table()
+        self.write_con.execute("VACUUM")
 
     def vertical_partition_and_dictionary_encode(self):
  
@@ -166,8 +167,7 @@ class Runner():
                     #column = self.try_zopfli(column)
         print("done")
 
-    def compress_partitioned_table(input_filename, table_name):
-        pass
+    def compress_partitioned_table(self):
 
         # Create a Bitpacker object and compress the data in the input file
         #bitpacker = Bitpacker()
@@ -177,6 +177,47 @@ class Runner():
         #output_filename = input_filename.split(".")[0] + "_compressed.db"
         #os.rename(output_filename, output_filename + ".db")
 
+        column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
+        res = self.read_cursor.execute(column_name_query)
+
+        column_names = res.fetchall()
+        for column_name in column_names:
+            if column_name[0] != "index" and column_name[0] != "_corrupt_record":
+                table_name = column_name[0].replace(" ", "_")
+                
+                #check metadata table to see if the column was dictionary encoded
+                metadata_lookup = "SELECT dictionary_encoded FROM metadata WHERE column_name = \"" + column_name[0] + "\";"
+                res = self.write_cursor.execute(metadata_lookup)
+
+                is_dictionary_encoded = res.fetchall()
+                self.dictionary_encoded = is_dictionary_encoded[0][0] == 1
+
+                if self.dictionary_encoded:
+                    table_name = table_name + "_dictionary_encoded"
+
+                query = "SELECT \"" + column_name[0] + "\" FROM " + table_name + ";"
+                print(query)
+                
+                res = self.write_cursor.execute(query)
+                column = res.fetchall()
+
+                column = self.try_zopfli(column)
+                if self.zipped:
+                    update_metadata_statement = "UPDATE metadata SET zipped = 1 WHERE column_name = \"" + column_name[0] + "\";"
+                    self.write_cursor.execute(update_metadata_statement)
+
+                    drop_table_statement = "DROP TABLE " + table_name
+                    self.write_cursor.execute(drop_table_statement)
+
+                    write_column = "key" if self.dictionary_encoded else column_name[0]
+                    create_table_statement = "CREATE TABLE " + table_name + "(\"" + write_column + "\"TEXT);"
+                    self.write_cursor.execute(create_table_statement)
+
+                    insert_statement = "INSERT INTO " + table_name + "(\"" + write_column + "\") VALUES (?);"
+                    self.write_cursor.executemany(insert_statement, column)
+
+                    self.write_con.commit()  
+
     def decompress(self):
         #for each column, check the bit in the metadata table to see if compression scheme was applied
         #if it was applied, read from the correct auxiliary table to decompress
@@ -185,15 +226,20 @@ class Runner():
 
         column_names = res.fetchall()
         for column_name in column_names:
-            if column_name[0] != "index":
+            if column_name[0] != "index" and column_name[0] != "_corrupt_record":
                 table_name = column_name[0].replace(" ", "_")
                 
                 #check metadata table to see if the column was dictionary encoded
+                metadata_lookup = "SELECT dictionary_encoded FROM metadata WHERE column_name = \"" + column_name[0] + "\";"
+                res = self.write_cursor.execute(metadata_lookup)
+
+                is_dictionary_encoded = res.fetchall()
+                self.dictionary_encoded = is_dictionary_encoded[0][0] == 1
 
                 if self.dictionary_encoded:
                     table_name += table_name + "_dictionary_encoded"
 
-                query = "SELECT " + column_name[0] + " FROM " + table_name + ";"
+                query = "SELECT \"" + column_name[0] + "\" FROM " + table_name + ";"
 
                 res = self.write_cursor.execute(query)
                 column = res.fetchall()
@@ -214,8 +260,8 @@ class Runner():
 runner = Runner("clothes")
 runner.compress()
 
-#runner = Runner("news")
-#runner.compress()
+runner = Runner("news")
+runner.compress()
 
-#runner = Runner("questions")
-#runner.compress()
+runner = Runner("questions")
+runner.compress()
