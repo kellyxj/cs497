@@ -91,7 +91,8 @@ class Runner():
     def compress(self):
         self.create_metadata()
         self.vertical_partition_and_dictionary_encode()
-        self.compress_partitioned_table()
+        self.bit_packing()
+        #self.compress_partitioned_table()
         self.write_con.execute("VACUUM")
 
     def vertical_partition_and_dictionary_encode(self):
@@ -113,6 +114,7 @@ class Runner():
 
             query = "SELECT \"" + column_name[0] + "\" FROM " + self.filename + ";"
             print(query)
+
 
             if column_name[0] != "index" and column_name[0] != "_corrupt_record":
                 type_query = "SELECT type FROM PRAGMA_TABLE_INFO('" + self.filename + "') WHERE name = \"" + column_name[0] + "\";"
@@ -166,17 +168,41 @@ class Runner():
                 #if column_type == "TEXT":
                     #column = self.try_zopfli(column)
         print("done")
+    def bit_packing(self):
+        print("bit packing starts here")
+        column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
+        res = self.read_cursor.execute(column_name_query)
+        column_names = res.fetchall()
+        for column_name in column_names:
+            #implement bitpacking:
+            if column_name[0] != "index" and column_name[0] != "_corrupt_record":
+                #get the column values     
+                table_name = column_name[0].replace(" ", "_")
+               #check metadata table to see if the column was dictionary encoded
+                metadata_lookup = "SELECT dictionary_encoded FROM metadata WHERE column_name = \"" + column_name[0] + "\";"
+                res = self.write_cursor.execute(metadata_lookup)
 
+                is_dictionary_encoded = res.fetchall()
+                self.dictionary_encoded = is_dictionary_encoded[0][0] == 1
+
+                if self.dictionary_encoded:
+                    table_name = table_name + "_dictionary_encoded"
+
+                query = "SELECT \"" + column_name[0] + "\" FROM " + table_name + ";"
+                print(query)
+                
+                res = self.write_cursor.execute(query)
+                column = res.fetchall()
+                print(type(column[0][0]))
+                break
+
+                # check if the values in "column" are integers:
+                pass 
     def compress_partitioned_table(self):
-
         # Create a Bitpacker object and compress the data in the input file
-        #bitpacker = Bitpacker()
-        #bitpacker.compress_partitioned_table(input_filename, table_name)
-
         # Rename the compressed database file to have a .db extension
         #output_filename = input_filename.split(".")[0] + "_compressed.db"
         #os.rename(output_filename, output_filename + ".db")
-
         column_name_query = "SELECT name FROM PRAGMA_TABLE_INFO('" + self.filename + "');"
         res = self.read_cursor.execute(column_name_query)
 
@@ -260,8 +286,8 @@ class Runner():
 runner = Runner("clothes")
 runner.compress()
 
-runner = Runner("news")
-runner.compress()
+#runner = Runner("news")
+#runner.compress()
 
-runner = Runner("questions")
-runner.compress()
+#runner = Runner("questions")
+#runner.compress()
